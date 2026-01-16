@@ -122,13 +122,56 @@ const defaultCollections = [
 ]
 
 const navLinks = [
-  { label: 'SAMPARK', href: '#solutions' },
+  
   { label: 'About', href: '#about', caret: true },
   { label: 'Products', href: '#products', caret: true },
   { label: 'Updates', href: '#updates' },
   { label: 'More', href: '#more', caret: true },
   { label: 'Login', href: '#contact' },
   { label: 'CART', href: '#products' }
+]
+
+const footerNav = {
+  learnMore: [
+    { label: 'About us', href: '#about' },
+    { label: 'Contact', href: '#contact' },
+    { label: 'Terms of use', href: '#contact' },
+    { label: 'Privacy policy', href: '#contact' },
+    { label: 'Franchise', href: '#solutions' }
+  ],
+  company: [
+    { label: 'Business terms', href: '#products' },
+    { label: 'Refunds', href: '#contact' },
+    { label: 'Shipping', href: '#contact' },
+    { label: 'Download brochure', href: '#solutions', accent: true }
+  ]
+}
+
+const footerQuestions = [
+  {
+    label: 'How Car PingMe Tag can reduce parking complaints in Delhi markets?',
+    href: 'https://ngf132.com/blog/how-car-sampark-tag-can-reduce-parking-complaints-in-delhi-commercial-markets'
+  },
+  {
+    label: 'How PingMe decals keep apartment driveways complaint-free?',
+    href: '#solutions'
+  },
+  {
+    label: 'Do I need separate tags for bike + helmet combos?',
+    href: '#products'
+  },
+  {
+    label: 'Can societies broadcast emergency notices with PingMe?',
+    href: '#studio'
+  },
+  {
+    label: 'How quickly can I update backup contacts?',
+    href: '#contact'
+  },
+  {
+    label: 'What makes PingMe safer than printing a phone number?',
+    href: '#tag'
+  }
 ]
 
 const heroPanelHighlights = [
@@ -234,9 +277,7 @@ function App() {
       <nav className="nav">
         <div className="brand">
           <img src={logo} alt="PingMe logo" />
-          <span>
-            SAM<span className="brand-accent">PARK</span>
-          </span>
+          
         </div>
         <div className="nav-links">
           {navLinks.map((link) => (
@@ -314,7 +355,7 @@ function App() {
         </div>
 
         <main>
-          <section className="section tag-showcase">
+          <section id="tag" className="section tag-showcase">
             <div className="tag-media">
               <img src={tagCard} alt="PingMe Sampark card mockup" />
               <p className="tag-caption">
@@ -484,16 +525,80 @@ function App() {
           </section>
         </main>
 
-        <footer>
-          <div>
-            <p>© {new Date().getFullYear()} PingMe Labs</p>
-            <p>Privacy • Refund • Shipping • Terms</p>
+        <footer className="footer">
+          <div className="footer-grid">
+            <div className="footer-brand">
+              <img src={logo} alt="PingMe logo" />
+              <p>© {new Date().getFullYear()} PingMe Labs Pvt Ltd</p>
+              <p>All rights reserved.</p>
+              <a
+                className="linkedin-pill"
+                href="https://www.linkedin.com/company/pingmeiff/"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Follow us on LinkedIn ↗
+              </a>
+            </div>
+
+            <div className="footer-contact">
+              <p className="eyebrow">Get in touch</p>
+              <p>Sector 45 Chandigarh, India<br />CHD 132001</p>
+              <a href="mailto:plzpingme.com">plzpingme.com</a>
+              <a href="tel:+917347340007">+91 734 734 0007</a>
+              <button className="location-pill" type="button">
+                <span role="img" aria-label="India flag">
+                  🇮🇳
+                </span>{' '}
+                Update location
+              </button>
+            </div>
+
+            <div className="footer-column">
+              <p className="eyebrow">Learn more</p>
+              <ul>
+                {footerNav.learnMore.map((item) => (
+                  <li key={item.label}>
+                    <a href={item.href}>{item.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="footer-column">
+              <p className="eyebrow">Company</p>
+              <ul>
+                {footerNav.company.map((item) => (
+                  <li key={item.label}>
+                    <a className={item.accent ? 'accent-link' : ''} href={item.href}>
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div className="footer-links">
-            <a href="mailto:hello@pingme.com">hello@pingme.com</a>
-            <a href="https://plzpingme.com" target="_blank" rel="noreferrer">
-              Visit legacy site
-            </a>
+
+          <div className="footer-questions">
+            <div className="footer-questions__header">
+              <p className="eyebrow">Questions founders ask us</p>
+              <span>Tap to read the answers</span>
+            </div>
+            <div className="questions-grid">
+              {footerQuestions.map((question) => {
+                const isExternal = question.href.startsWith('http')
+                return (
+                  <a
+                    key={question.label}
+                    href={question.href}
+                    target={isExternal ? '_blank' : undefined}
+                    rel={isExternal ? 'noreferrer' : undefined}
+                  >
+                    {question.label}
+                  </a>
+                )
+              })}
+            </div>
           </div>
         </footer>
       </div>
