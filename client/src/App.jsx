@@ -230,272 +230,274 @@ function App() {
   }
 
   return (
-    <div className="pingme-app">
-      <header className="hero-section">
-        <nav className="nav">
-          <div className="brand">
-            <img src={logo} alt="PingMe logo" />
-            <span>
-              SAM<span className="brand-accent">PARK</span>
+    <>
+      <nav className="nav">
+        <div className="brand">
+          <img src={logo} alt="PingMe logo" />
+          <span>
+            SAM<span className="brand-accent">PARK</span>
+          </span>
+        </div>
+        <div className="nav-links">
+          {navLinks.map((link) => (
+            <a key={link.label} href={link.href}>
+              {link.label}
+              {link.caret && <span className="caret">▼</span>}
+            </a>
+          ))}
+        </div>
+        <div className="nav-icons">
+          <button aria-label="Help center">i</button>
+          <button aria-label="Switch region">
+            <span role="img" aria-label="India flag">
+              🇮🇳
             </span>
-          </div>
-          <div className="nav-links">
-            {navLinks.map((link) => (
-              <a key={link.label} href={link.href}>
-                {link.label}
-                {link.caret && <span className="caret">▼</span>}
-              </a>
-            ))}
-          </div>
-          <div className="nav-icons">
-            <button aria-label="Help center">i</button>
-            <button aria-label="Switch region">
-              <span role="img" aria-label="India flag">
-                🇮🇳
-              </span>
-            </button>
-          </div>
-        </nav>
+          </button>
+        </div>
+      </nav>
 
-        <div className="hero-grid">
-          <div className="hero-copy">
-            <p className="eyebrow">Scan-ready future • QR that sparks conversations</p>
-            <h1>
-              Bring your brand to life with bold, custom{' '}
-              <span className="highlight">QR decals</span>.
-            </h1>
-            <p className="hero-description">
-              PingMe transforms windshields, shop fronts, helmets, and merch into interactive hubs
-              that route fans to whatever matters—profiles, offers, playlists, or support.
-            </p>
-            <div className="hero-cta">
-              <button className="primary">Shop Signature Kits</button>
-              <button className="secondary">Preview a Live Ping</button>
+      <div className="pingme-app">
+        <header className="hero-section">
+          <div className="hero-grid">
+            <div className="hero-copy">
+              <p className="eyebrow">Scan-ready future • QR that sparks conversations</p>
+              <h1>
+                Bring your brand to life with bold, custom{' '}
+                <span className="highlight">QR decals</span>.
+              </h1>
+              <p className="hero-description">
+                PingMe transforms windshields, shop fronts, helmets, and merch into interactive hubs
+                that route fans to whatever matters—profiles, offers, playlists, or support.
+              </p>
+              <div className="hero-cta">
+                <button className="primary">Shop Signature Kits</button>
+                <button className="secondary">Preview a Live Ping</button>
+              </div>
+              <div className="hero-stats">
+                {highlightStats.map((stat) => (
+                  <div key={stat.label}>
+                    <span>{stat.value}</span>
+                    <p>{stat.label}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className="hero-stats">
-              {highlightStats.map((stat) => (
-                <div key={stat.label}>
-                  <span>{stat.value}</span>
-                  <p>{stat.label}</p>
+            <div className="hero-card hero-panel">
+              <div className="hero-card__badge">Privacy Stack</div>
+              <div className="hero-card__content">
+                <p>Everything routed, nothing exposed</p>
+                <h3>Masked calls, WhatsApp routing, and document locker.</h3>
+                <div className="hero-panel-grid">
+                  {heroPanelHighlights.map((item) => (
+                    <article key={item.title}>
+                      <h4>{item.title}</h4>
+                      <p>{item.description}</p>
+                    </article>
+                  ))}
                 </div>
-              ))}
+                <div className="hero-card__footer">
+                  <span>Works in 120+ cities</span>
+                  <button className="primary small">Explore how it works</button>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="hero-card hero-panel">
-            <div className="hero-card__badge">Privacy Stack</div>
-            <div className="hero-card__content">
-              <p>Everything routed, nothing exposed</p>
-              <h3>Masked calls, WhatsApp routing, and document locker.</h3>
-              <div className="hero-panel-grid">
-                {heroPanelHighlights.map((item) => (
-                  <article key={item.title}>
-                    <h4>{item.title}</h4>
-                    <p>{item.description}</p>
+        </header>
+
+        <div className="stats-band">
+          {statsBand.map((stat) => (
+            <div key={stat.label}>
+              <span>{stat.value}</span>
+              <p>{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <main>
+          <section className="section tag-showcase">
+            <div className="tag-media">
+              <img src={tagCard} alt="PingMe Sampark card mockup" />
+              <p className="tag-caption">
+                Scan using any camera phone. Secure & smart QR with PingMe branding.
+              </p>
+            </div>
+            <div className="tag-details">
+              <p className="eyebrow">Car and Bike Parking Tag</p>
+              <h2>Privacy and security at its best, PingMe vehicle contact tag.</h2>
+              <div className="tag-grid">
+                {tagHighlights.map((highlight) => (
+                  <article key={highlight.title}>
+                    <h3>{highlight.title}</h3>
+                    <p>{highlight.description}</p>
                   </article>
                 ))}
               </div>
-              <div className="hero-card__footer">
-                <span>Works in 120+ cities</span>
-                <button className="primary small">Explore how it works</button>
-              </div>
+              {/* <div className="tag-cta">
+                <button className="amazon-badge">Buy now on Amazon</button>
+                <button className="primary">Add to cart</button>
+              </div> */}
             </div>
-          </div>
-        </div>
-      </header>
+          </section>
 
-      <div className="stats-band">
-        {statsBand.map((stat) => (
-          <div key={stat.label}>
-            <span>{stat.value}</span>
-            <p>{stat.label}</p>
-          </div>
-        ))}
-      </div>
+          <section className="section whatsapp-block">
+            <div className="whatsapp-media">
+              <img src={pingWebsite} alt="PingMe WhatsApp control center" />
+              <p className="tag-caption">
+                WhatsApp, video calls, document management, offline tags, and replacements.
+              </p>
+            </div>
+            <div className="whatsapp-details">
+              <h2>Car / Bike Parking tag</h2>
+              <p>
+                Your contact details will not be shared, but anyone who has an issue with your parked
+                vehicle can contact you. We will send you WhatsApp, SMS, and masked calls.
+              </p>
+              <ul>
+                {whatsappHighlights.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+              <button className="primary">More details</button>
+            </div>
+          </section>
 
-      <main>
-        <section className="section tag-showcase">
-          <div className="tag-media">
-            <img src={tagCard} alt="PingMe Sampark card mockup" />
-            <p className="tag-caption">
-              Scan using any camera phone. Secure & smart QR with PingMe branding.
-            </p>
-          </div>
-          <div className="tag-details">
-            <p className="eyebrow">Car and Bike Parking Tag</p>
-            <h2>Privacy and security at its best, PingMe vehicle contact tag.</h2>
-            <div className="tag-grid">
-              {tagHighlights.map((highlight) => (
-                <article key={highlight.title}>
-                  <h3>{highlight.title}</h3>
-                  <p>{highlight.description}</p>
+          <section id="solutions" className="section solutions">
+            <div className="section-header">
+              <p className="eyebrow">What we do</p>
+              <h2>Allow people to contact you in case of any issue with your parked vehicle.</h2>
+            </div>
+            <div className="solutions-grid">
+              {solutions.map((solution) => (
+                <article key={solution.title}>
+                  <div>
+                    <h3>{solution.title}</h3>
+                    <p>{solution.summary}</p>
+                  </div>
+                  <ul>
+                    {solution.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
                 </article>
               ))}
             </div>
-            {/* <div className="tag-cta">
-              <button className="amazon-badge">Buy now on Amazon</button>
-              <button className="primary">Add to cart</button>
-            </div> */}
-          </div>
-        </section>
+          </section>
 
-        <section className="section whatsapp-block">
-          <div className="whatsapp-media">
-            <img src={pingWebsite} alt="PingMe WhatsApp control center" />
-            <p className="tag-caption">
-              WhatsApp, video calls, document management, offline tags, and replacements.
-            </p>
-          </div>
-          <div className="whatsapp-details">
-            <h2>Car / Bike Parking tag</h2>
-            <p>
-              Your contact details will not be shared, but anyone who has an issue with your parked
-              vehicle can contact you. We will send you WhatsApp, SMS, and masked calls.
-            </p>
-            <ul>
-              {whatsappHighlights.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <button className="primary">More details</button>
-          </div>
-        </section>
-
-        <section id="solutions" className="section solutions">
-          <div className="section-header">
-            <p className="eyebrow">What we do</p>
-            <h2>Allow people to contact you in case of any issue with your parked vehicle.</h2>
-          </div>
-          <div className="solutions-grid">
-            {solutions.map((solution) => (
-              <article key={solution.title}>
-                <div>
-                  <h3>{solution.title}</h3>
-                  <p>{solution.summary}</p>
-                </div>
-                <ul>
-                  {solution.bullets.map((bullet) => (
-                    <li key={bullet}>{bullet}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-          </div>
-        </section>
-
-        <section id="products" className="section collections">
-          <div className="section-header">
-            <p className="eyebrow">Best sellers</p>
-            <h2>Curated drops in PingMe Yellow.</h2>
-          </div>
-          <div className="collection-cards">
-            {collections.map((collection) => (
-              <div key={collection.label} className="collection-card">
-                <div>
-                  <p className="accent">{collection.accent}</p>
-                  <h3>{collection.label}</h3>
-                  <p>{collection.description}</p>
-                  <ul>
-                    {collection.perks.map((perk) => (
-                      <li key={perk}>{perk}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="card-footer">
-                  <span>{collection.price}</span>
-                  <button className="primary ghost">{collection.cta}</button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="section testimonials" id="studio">
-          <div className="section-header">
-            <p className="eyebrow">Loved by creators</p>
-            <h2>Ping moments our community is buzzing about.</h2>
-          </div>
-          <div className="testimonial-grid">
-            {testimonials.map((testimonial) => (
-              <blockquote key={testimonial.author}>
-                <p>“{testimonial.quote}”</p>
-                <cite>{testimonial.author}</cite>
-              </blockquote>
-            ))}
-          </div>
-        </section>
-
-        <section className="section contact" id="contact">
-          <div className="contact-card">
-            <div>
-              <p className="eyebrow">Let’s build your ping hub</p>
-              <h2>Tell us where you want to stick your story.</h2>
-              <p>
-                From automotive showrooms to boutique stores, PingMe decals convert idle attention
-                into real conversations.
-              </p>
+          <section id="products" className="section collections">
+            <div className="section-header">
+              <p className="eyebrow">Best sellers</p>
+              <h2>Curated drops in PingMe Yellow.</h2>
             </div>
-            <form onSubmit={handleSubmit}>
-              <label>
-                Name
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Aarav Patel"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
-              <label>
-                Email
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="team@pingme.com"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
-              <label>
-                Project
-                <textarea
-                  name="project"
-                  placeholder="Tell us about your drop, launch, or experience."
-                  value={formData.project}
-                  onChange={handleInputChange}
-                  required
-                />
-              </label>
-              <button
-                type="submit"
-                className={`primary${formStatus.loading ? ' loading' : ''}`}
-                data-loading=" • sending..."
-                disabled={formStatus.loading}
-              >
-                {formStatus.loading ? 'Booking' : 'Book a strategy call'}
-              </button>
-              {formStatus.message && (
-                <p className={`form-status ${formStatus.type}`}>{formStatus.message}</p>
-              )}
-            </form>
-          </div>
-        </section>
-      </main>
+            <div className="collection-cards">
+              {collections.map((collection) => (
+                <div key={collection.label} className="collection-card">
+                  <div>
+                    <p className="accent">{collection.accent}</p>
+                    <h3>{collection.label}</h3>
+                    <p>{collection.description}</p>
+                    <ul>
+                      {collection.perks.map((perk) => (
+                        <li key={perk}>{perk}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="card-footer">
+                    <span>{collection.price}</span>
+                    <button className="primary ghost">{collection.cta}</button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
-      <footer>
-        <div>
-          <p>© {new Date().getFullYear()} PingMe Labs</p>
-          <p>Privacy • Refund • Shipping • Terms</p>
-        </div>
-        <div className="footer-links">
-          <a href="mailto:hello@pingme.com">hello@pingme.com</a>
-          <a href="https://plzpingme.com" target="_blank" rel="noreferrer">
-            Visit legacy site
-          </a>
-        </div>
-      </footer>
-    </div>
+          <section className="section testimonials" id="studio">
+            <div className="section-header">
+              <p className="eyebrow">Loved by creators</p>
+              <h2>Ping moments our community is buzzing about.</h2>
+            </div>
+            <div className="testimonial-grid">
+              {testimonials.map((testimonial) => (
+                <blockquote key={testimonial.author}>
+                  <p>“{testimonial.quote}”</p>
+                  <cite>{testimonial.author}</cite>
+                </blockquote>
+              ))}
+            </div>
+          </section>
+
+          <section className="section contact" id="contact">
+            <div className="contact-card">
+              <div>
+                <p className="eyebrow">Let’s build your ping hub</p>
+                <h2>Tell us where you want to stick your story.</h2>
+                <p>
+                  From automotive showrooms to boutique stores, PingMe decals convert idle attention
+                  into real conversations.
+                </p>
+              </div>
+              <form onSubmit={handleSubmit}>
+                <label>
+                  Name
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Aarav Patel"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+                <label>
+                  Email
+                  <input
+                    type="email"
+                    name="email"
+                    placeholder="team@pingme.com"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+                <label>
+                  Project
+                  <textarea
+                    name="project"
+                    placeholder="Tell us about your drop, launch, or experience."
+                    value={formData.project}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+                <button
+                  type="submit"
+                  className={`primary${formStatus.loading ? ' loading' : ''}`}
+                  data-loading=" • sending..."
+                  disabled={formStatus.loading}
+                >
+                  {formStatus.loading ? 'Booking' : 'Book a strategy call'}
+                </button>
+                {formStatus.message && (
+                  <p className={`form-status ${formStatus.type}`}>{formStatus.message}</p>
+                )}
+              </form>
+            </div>
+          </section>
+        </main>
+
+        <footer>
+          <div>
+            <p>© {new Date().getFullYear()} PingMe Labs</p>
+            <p>Privacy • Refund • Shipping • Terms</p>
+          </div>
+          <div className="footer-links">
+            <a href="mailto:hello@pingme.com">hello@pingme.com</a>
+            <a href="https://plzpingme.com" target="_blank" rel="noreferrer">
+              Visit legacy site
+            </a>
+          </div>
+        </footer>
+      </div>
+    </>
   )
 }
 
