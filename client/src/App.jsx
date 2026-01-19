@@ -1,10 +1,24 @@
-  import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { Link, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import './App.css'
 import logo from './assets/pingme-logo.png'
 import tagCard from './assets/tag-card.png'
 import pingWebsite from './assets/ping-website.png'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'
+const resolveApiBase = () => {
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.trim().replace(/\/$/, '')
+  }
+
+  if (typeof window !== 'undefined') {
+    const { protocol, hostname } = window.location
+    return `${protocol}//${hostname}:5000`
+  }
+
+  return 'http://localhost:5000'
+}
+
+const API_URL = resolveApiBase()
 
 const solutions = [
   {
@@ -122,13 +136,13 @@ const defaultCollections = [
 ]
 
 const navLinks = [
-  
-  { label: 'About', href: '#about', caret: true },
-  { label: 'Products', href: '#products', caret: true },
-  { label: 'Updates', href: '#updates' },
-  { label: 'More', href: '#more', caret: true },
-  { label: 'Login', href: '#contact' },
-  { label: 'CART', href: '#products' }
+  { label: 'Landing', path: '/' },
+  { label: 'Home', path: '/home', requiresAuth: true },
+  { label: 'Tag', hash: '#tag', requiresAuth: true },
+  { label: 'Products', hash: '#products', requiresAuth: true },
+  { label: 'Solutions', hash: '#solutions', requiresAuth: true },
+  { label: 'Studio', hash: '#studio', requiresAuth: true },
+  { label: 'Contact', hash: '#contact', requiresAuth: true }
 ]
 
 const footerNav = {
@@ -211,6 +225,13 @@ function App() {
   const [collections, setCollections] = useState(defaultCollections)
   const [formData, setFormData] = useState({ name: '', email: '', project: '' })
   const [formStatus, setFormStatus] = useState({ type: '', message: '', loading: false })
+  const [apiStatus, setApiStatus] = useState({ healthy: false, loading: true, message: 'Checking PingMe API…' })
+  const [session, setSession] = useState(() => {
+    const cached = localStorage.getItem('pingmeSession')
+    return cached ? JSON.parse(cached) : null
+  })
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -238,6 +259,52 @@ function App() {
 
     return () => controller.abort()
   }, [])
+
+  const refreshApiStatus = useCallback(async () => {
+    setApiStatus((prev) => ({ ...prev, loading: true }))
+
+    try {
+      const response = await fetch(`${API_URL}/api/health`)
+      if (!response.ok) {
+        throw new Error('Health check failed')
+      }
+      const payload = await response.json()
+      setApiStatus({
+        healthy: true,
+        loading: false,
+        message: `API online · uptime ${Math.round(payload.uptime)}s`
+      })
+    } catch (error) {
+      setApiStatus({
+        healthy: false,
+        loading: false,
+        message: 'PingMe API unreachable. Start backend (npm start in /server) or set VITE_API_URL.'
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    refreshApiStatus()
+  }, [refreshApiStatus])
+
+  useEffect(() => {
+    if (location.pathname === '/home' && location.hash) {
+      const target = document.querySelector(location.hash)
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    } else if (!location.hash) {
+      window.scrollTo({ top: 0 })
+    }
+  }, [location])
+
+  useEffect(() => {
+    if (session) {
+      localStorage.setItem('pingmeSession', JSON.stringify(session))
+    } else {
+      localStorage.removeItem('pingmeSession')
+    }
+  }, [session])
 
   const handleInputChange = (event) => {
     const { name, value } = event.target
@@ -272,338 +339,666 @@ function App() {
     }
   }
 
+  const handleLoginSuccess = (payload) => {
+    setSession({ workspaceSlug: payload.workspaceSlug, lastLogin: payload.lastLogin })
+    navigate('/home', { replace: true })
+  }
+
+  const handleLogout = () => {
+    setSession(null)
+    navigate('/', { replace: true })
+  }
+
+  const visibleLinks = navLinks.filter((link) => (session ? true : !link.requiresAuth))
+  const renderLinkDestination = (link) => {
+    if (link.path) {
+      return link.path
+    }
+
+    return { pathname: '/home', hash: link.hash }
+  }
+
   return (
     <>
       <nav className="nav">
         <div className="brand">
           <img src={logo} alt="PingMe logo" />
-          
+          <span>
+            SAM<span className="brand-accent">PARK</span>
+          </span>
         </div>
         <div className="nav-links">
-          {navLinks.map((link) => (
-            <a key={link.label} href={link.href}>
+          {visibleLinks.map((link) => (
+            <Link key={link.label} to={renderLinkDestination(link)}>
               {link.label}
-              {link.caret && <span className="caret">▼</span>}
-            </a>
+            </Link>
           ))}
         </div>
-        <div className="nav-icons">
-          <button aria-label="Help center">i</button>
-          <button aria-label="Switch region">
-            <span role="img" aria-label="India flag">
-              🇮🇳
-            </span>
+        {session ? (
+          <button className="secondary" type="button" onClick={handleLogout}>
+            Logout
           </button>
-        </div>
+        ) : null}
       </nav>
 
-      <div className="pingme-app">
-        <header className="hero-section">
-          <div className="hero-grid">
-            <div className="hero-copy">
-              <p className="eyebrow">Scan-ready future • QR that sparks conversations</p>
-              <h1>
-                Bring your brand to life with bold, custom{' '}
-                <span className="highlight">QR decals</span>.
-              </h1>
-              <p className="hero-description">
-                PingMe transforms windshields, shop fronts, helmets, and merch into interactive hubs
-                that route fans to whatever matters—profiles, offers, playlists, or support.
-              </p>
-              <div className="hero-cta">
-                <button className="primary">Shop Signature Kits</button>
-                <button className="secondary">Preview a Live Ping</button>
-              </div>
-              <div className="hero-stats">
-                {highlightStats.map((stat) => (
-                  <div key={stat.label}>
-                    <span>{stat.value}</span>
-                    <p>{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="hero-card hero-panel">
-              <div className="hero-card__badge">Privacy Stack</div>
-              <div className="hero-card__content">
-                <p>Everything routed, nothing exposed</p>
-                <h3>Masked calls, WhatsApp routing, and document locker.</h3>
-                <div className="hero-panel-grid">
-                  {heroPanelHighlights.map((item) => (
-                    <article key={item.title}>
-                      <h4>{item.title}</h4>
-                      <p>{item.description}</p>
-                    </article>
-                  ))}
-                </div>
-                <div className="hero-card__footer">
-                  <span>Works in 120+ cities</span>
-                  <button className="primary small">Explore how it works</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <div className="stats-band">
-          {statsBand.map((stat) => (
-            <div key={stat.label}>
-              <span>{stat.value}</span>
-              <p>{stat.label}</p>
-            </div>
-          ))}
-        </div>
-
-        <main>
-          <section id="tag" className="section tag-showcase">
-            <div className="tag-media">
-              <img src={tagCard} alt="PingMe Sampark card mockup" />
-              <p className="tag-caption">
-                Scan using any camera phone. Secure & smart QR with PingMe branding.
-              </p>
-            </div>
-            <div className="tag-details">
-              <p className="eyebrow">Car and Bike Parking Tag</p>
-              <h2>Privacy and security at its best, PingMe vehicle contact tag.</h2>
-              <div className="tag-grid">
-                {tagHighlights.map((highlight) => (
-                  <article key={highlight.title}>
-                    <h3>{highlight.title}</h3>
-                    <p>{highlight.description}</p>
-                  </article>
-                ))}
-              </div>
-              {/* <div className="tag-cta">
-                <button className="amazon-badge">Buy now on Amazon</button>
-                <button className="primary">Add to cart</button>
-              </div> */}
-            </div>
-          </section>
-
-          <section className="section whatsapp-block">
-            <div className="whatsapp-media">
-              <img src={pingWebsite} alt="PingMe WhatsApp control center" />
-              <p className="tag-caption">
-                WhatsApp, video calls, document management, offline tags, and replacements.
-              </p>
-            </div>
-            <div className="whatsapp-details">
-              <h2>Car / Bike Parking tag</h2>
-              <p>
-                Your contact details will not be shared, but anyone who has an issue with your parked
-                vehicle can contact you. We will send you WhatsApp, SMS, and masked calls.
-              </p>
-              <ul>
-                {whatsappHighlights.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-              <button className="primary">More details</button>
-            </div>
-          </section>
-
-          <section id="solutions" className="section solutions">
-            <div className="section-header">
-              <p className="eyebrow">What we do</p>
-              <h2>Allow people to contact you in case of any issue with your parked vehicle.</h2>
-            </div>
-            <div className="solutions-grid">
-              {solutions.map((solution) => (
-                <article key={solution.title}>
-                  <div>
-                    <h3>{solution.title}</h3>
-                    <p>{solution.summary}</p>
-                  </div>
-                  <ul>
-                    {solution.bullets.map((bullet) => (
-                      <li key={bullet}>{bullet}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
-            </div>
-          </section>
-
-          <section id="products" className="section collections">
-            <div className="section-header">
-              <p className="eyebrow">Best sellers</p>
-              <h2>Curated drops in PingMe Yellow.</h2>
-            </div>
-            <div className="collection-cards">
-              {collections.map((collection) => (
-                <div key={collection.label} className="collection-card">
-                  <div>
-                    <p className="accent">{collection.accent}</p>
-                    <h3>{collection.label}</h3>
-                    <p>{collection.description}</p>
-                    <ul>
-                      {collection.perks.map((perk) => (
-                        <li key={perk}>{perk}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="card-footer">
-                    <span>{collection.price}</span>
-                    <button className="primary ghost">{collection.cta}</button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          <section className="section testimonials" id="studio">
-            <div className="section-header">
-              <p className="eyebrow">Loved by creators</p>
-              <h2>Ping moments our community is buzzing about.</h2>
-            </div>
-            <div className="testimonial-grid">
-              {testimonials.map((testimonial) => (
-                <blockquote key={testimonial.author}>
-                  <p>“{testimonial.quote}”</p>
-                  <cite>{testimonial.author}</cite>
-                </blockquote>
-              ))}
-            </div>
-          </section>
-
-          <section className="section contact" id="contact">
-            <div className="contact-card">
-              <div>
-                <p className="eyebrow">Let’s build your ping hub</p>
-                <h2>Tell us where you want to stick your story.</h2>
-                <p>
-                  From automotive showrooms to boutique stores, PingMe decals convert idle attention
-                  into real conversations.
-                </p>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <label>
-                  Name
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Aarav Patel"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <label>
-                  Email
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="team@pingme.com"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <label>
-                  Project
-                  <textarea
-                    name="project"
-                    placeholder="Tell us about your drop, launch, or experience."
-                    value={formData.project}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </label>
-                <button
-                  type="submit"
-                  className={`primary${formStatus.loading ? ' loading' : ''}`}
-                  data-loading=" • sending..."
-                  disabled={formStatus.loading}
-                >
-                  {formStatus.loading ? 'Booking' : 'Book a strategy call'}
-                </button>
-                {formStatus.message && (
-                  <p className={`form-status ${formStatus.type}`}>{formStatus.message}</p>
-                )}
-              </form>
-            </div>
-          </section>
-        </main>
-
-        <footer className="footer">
-          <div className="footer-grid">
-            <div className="footer-brand">
-              <img src={logo} alt="PingMe logo" />
-              <p>© {new Date().getFullYear()} PingMe Labs Pvt Ltd</p>
-              <p>All rights reserved.</p>
-              <a
-                className="linkedin-pill"
-                href="https://www.linkedin.com/company/pingmeiff/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Follow us on LinkedIn ↗
-              </a>
-            </div>
-
-            <div className="footer-contact">
-              <p className="eyebrow">Get in touch</p>
-              <p>Sector 45 Chandigarh, India<br />CHD 132001</p>
-              <a href="mailto:plzpingme.com">plzpingme.com</a>
-              <a href="tel:+917347340007">+91 734 734 0007</a>
-              <button className="location-pill" type="button">
-                <span role="img" aria-label="India flag">
-                  🇮🇳
-                </span>{' '}
-                Update location
-              </button>
-            </div>
-
-            <div className="footer-column">
-              <p className="eyebrow">Learn more</p>
-              <ul>
-                {footerNav.learnMore.map((item) => (
-                  <li key={item.label}>
-                    <a href={item.href}>{item.label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="footer-column">
-              <p className="eyebrow">Company</p>
-              <ul>
-                {footerNav.company.map((item) => (
-                  <li key={item.label}>
-                    <a className={item.accent ? 'accent-link' : ''} href={item.href}>
-                      {item.label}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-
-          <div className="footer-questions">
-            <div className="footer-questions__header">
-              <p className="eyebrow">Questions founders ask us</p>
-              <span>Tap to read the answers</span>
-            </div>
-            <div className="questions-grid">
-              {footerQuestions.map((question) => {
-                const isExternal = question.href.startsWith('http')
-                return (
-                  <a
-                    key={question.label}
-                    href={question.href}
-                    target={isExternal ? '_blank' : undefined}
-                    rel={isExternal ? 'noreferrer' : undefined}
-                  >
-                    {question.label}
-                  </a>
-                )
-              })}
-            </div>
-          </div>
-        </footer>
-      </div>
+      <Routes>
+        <Route path="/" element={<LandingPage session={session} />} />
+        <Route
+          path="/register"
+          element={<RegisterPage apiStatus={apiStatus} refreshApiStatus={refreshApiStatus} />}
+        />
+        <Route
+          path="/login"
+          element={<LoginPage apiStatus={apiStatus} refreshApiStatus={refreshApiStatus} onLogin={handleLoginSuccess} />}
+        />
+        <Route
+          path="/home"
+          element={
+            <ProtectedRoute session={session}>
+              <HomePage
+                highlightStats={highlightStats}
+                statsBand={statsBand}
+                heroPanelHighlights={heroPanelHighlights}
+                tagHighlights={tagHighlights}
+                whatsappHighlights={whatsappHighlights}
+                solutions={solutions}
+                collections={collections}
+                testimonials={testimonials}
+                footerNav={footerNav}
+                footerQuestions={footerQuestions}
+                formData={formData}
+                formStatus={formStatus}
+                handleInputChange={handleInputChange}
+                handleSubmit={handleSubmit}
+                session={session}
+              />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </>
   )
 }
+
+const ProtectedRoute = ({ session, children }) => {
+  const location = useLocation()
+
+  if (!session) {
+    return <Navigate to="/login" replace state={{ from: location }} />
+  }
+
+  return children
+}
+
+const LandingPage = ({ session }) => {
+  const landingMetrics = [
+    { label: 'Communities onboarded', value: '1.2K+' },
+    { label: 'Average response time', value: '58s' },
+    { label: 'Masked connections routed', value: '2.5M+' }
+  ]
+
+  const featureCards = [
+    {
+      title: 'No phone numbers on display',
+      copy: 'PingMe bridges every alert through a secure QR + NFC layer so your identity never leaks.'
+    },
+    {
+      title: 'WhatsApp + Call relays',
+      copy: 'Decide how people reach you — masked calls, WhatsApp, SMS, or emergency broadcast pulse.'
+    },
+    {
+      title: 'Sampark OS toolkit',
+      copy: 'Dashboards, doc lockers, and audit logs built for fleets, RWA, and ambitious founders.'
+    }
+  ]
+
+  return (
+    <main className="landing">
+      <section className="landing-hero">
+        <p className="eyebrow">PingMe · Sampark OS</p>
+        <h1>Secure alerts that respect privacy and still reach the right human instantly.</h1>
+        <p className="landing-copy">
+          Spin up vehicle tags, shop counters, or whole communities with the same dashboard. Register to create a
+          workspace or sign in to continue building your PingMe utilities.
+        </p>
+
+        <div className="landing-cta">
+          <Link className="primary" to={session ? '/home' : '/register'}>
+            {session ? 'Enter dashboard' : 'Create workspace'}
+          </Link>
+          <Link className="primary ghost" to={session ? '/home#contact' : '/login'}>
+            {session ? 'Contact success team' : 'Already have an account?'}
+          </Link>
+        </div>
+
+        <div className="landing-metrics">
+          {landingMetrics.map((metric) => (
+            <article key={metric.label}>
+              <span>{metric.value}</span>
+              <p>{metric.label}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="landing-grid">
+        {featureCards.map((card) => (
+          <article key={card.title}>
+            <h3>{card.title}</h3>
+            <p>{card.copy}</p>
+          </article>
+        ))}
+      </section>
+    </main>
+  )
+}
+
+const ApiStatusBanner = ({ apiStatus, refreshApiStatus }) => (
+  <div className="api-status-card">
+    <div>
+      <p className="eyebrow">API status</p>
+      <h3>{apiStatus.message}</h3>
+      <span className={`status-pill ${apiStatus.healthy ? 'ok' : 'error'}`}>
+        {apiStatus.loading ? 'Checking…' : apiStatus.healthy ? 'Online' : 'Offline'}
+      </span>
+    </div>
+    <button type="button" className="secondary" onClick={refreshApiStatus} disabled={apiStatus.loading}>
+      {apiStatus.loading ? 'Refreshing…' : 'Re-check now'}
+    </button>
+  </div>
+)
+
+const SecurityChecklist = () => (
+  <div className="security-card">
+    <h4>Security & diagnostics</h4>
+    <ul>
+      <li>Ensure the backend (npm start in /server) is running on port 5000.</li>
+      <li>Confirm VITE_API_URL matches the backend URL when deploying.</li>
+      <li>Never reuse admin credentials. Use unique workspace emails.</li>
+      <li>Inspect DevTools → Network if you hit “Failed to fetch”.</li>
+    </ul>
+  </div>
+)
+
+const RegisterPage = ({ apiStatus, refreshApiStatus }) => {
+  const navigate = useNavigate()
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    workspace: '',
+    phone: '',
+    password: ''
+  })
+  const [status, setStatus] = useState({ type: '', message: '', loading: false })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setStatus({ type: '', message: '', loading: true })
+
+    try {
+      const response = await fetch(`${API_URL}/api/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error?.error || 'Registration failed. Inspect server logs for details.')
+      }
+
+      const payload = await response.json()
+      setStatus({ type: 'success', message: payload?.message || 'Workspace created. Redirecting to login…', loading: false })
+
+      setTimeout(() => {
+        navigate('/login', { replace: true, state: { email: formData.email, fromRegister: true } })
+      }, 900)
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message, loading: false })
+    }
+  }
+
+  return (
+    <div className="auth-shell">
+      <div className="auth-card">
+        <p className="eyebrow">Create workspace</p>
+        <h2>Register your PingMe Sampark HQ</h2>
+        <p className="auth-copy">
+          Use your organisation or personal email. We will set up the initial workspace slug and share it inside the
+          login response.
+        </p>
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label>
+            Name
+            <input type="text" name="name" placeholder="Ashna Rao" value={formData.name} onChange={handleChange} required />
+          </label>
+          <label>
+            Email
+            <input
+              type="email"
+              name="email"
+              placeholder="you@pinghq.in"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </label>
+          <label>
+            Workspace / org name
+            <input
+              type="text"
+              name="workspace"
+              placeholder="sampark-delhi"
+              value={formData.workspace}
+              onChange={handleChange}
+              required
+            />
+          </label>
+          <label>
+            Phone (for escalations)
+            <input type="tel" name="phone" placeholder="+91 90000 00000" value={formData.phone} onChange={handleChange} />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
+          </label>
+
+          <button
+            type="submit"
+            className={`primary ${status.loading ? 'loading' : ''}`}
+            disabled={status.loading}
+            data-loading="Creating workspace…"
+          >
+            {status.loading ? 'Creating workspace…' : 'Create & continue'}
+          </button>
+        </form>
+
+        {status.message ? <p className={`form-status ${status.type}`}>{status.message}</p> : null}
+        <p className="auth-footer">
+          Already have an account? <Link to="/login">Log in here</Link>
+        </p>
+      </div>
+
+      <aside className="auth-preview">
+        <ApiStatusBanner apiStatus={apiStatus} refreshApiStatus={refreshApiStatus} />
+        <SecurityChecklist />
+      </aside>
+    </div>
+  )
+}
+
+const LoginPage = ({ apiStatus, refreshApiStatus, onLogin }) => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [formData, setFormData] = useState({ email: location.state?.email || '', password: '' })
+  const [status, setStatus] = useState({ type: '', message: '', loading: false })
+
+  const handleChange = (event) => {
+    const { name, value } = event.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+    setStatus({ type: '', message: '', loading: true })
+
+    try {
+      const response = await fetch(`${API_URL}/api/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}))
+        throw new Error(error?.error || 'Login failed. Check credentials or backend status.')
+      }
+
+      const payload = await response.json()
+      onLogin({
+        workspaceSlug: payload?.workspaceSlug || 'demo-workspace',
+        lastLogin: payload?.lastLogin || new Date().toISOString()
+      })
+    } catch (error) {
+      setStatus({ type: 'error', message: error.message, loading: false })
+      return
+    }
+
+    setStatus({ type: 'success', message: 'Authenticated. Redirecting…', loading: false })
+    navigate('/home', { replace: true })
+  }
+
+  const redirectedMessage = location.state?.fromRegister
+
+  return (
+    <div className="auth-shell">
+      <div className="auth-card">
+        <p className="eyebrow">Access workspace</p>
+        <h2>Log in to continue building PingMe flows</h2>
+        {redirectedMessage ? <p className="auth-copy">Account created! Sign in to access the dashboard.</p> : null}
+
+        <form className="auth-form" onSubmit={handleSubmit}>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="you@pinghq.in" value={formData.email} onChange={handleChange} required />
+          </label>
+          <label>
+            Password
+            <input type="password" name="password" placeholder="••••••••" value={formData.password} onChange={handleChange} required />
+          </label>
+          <button
+            type="submit"
+            className={`primary ${status.loading ? 'loading' : ''}`}
+            disabled={status.loading}
+            data-loading="Verifying credentials…"
+          >
+            {status.loading ? 'Verifying…' : 'Login and continue'}
+          </button>
+        </form>
+
+        {status.message ? <p className={`form-status ${status.type}`}>{status.message}</p> : null}
+        <p className="auth-footer">
+          Need a workspace? <Link to="/register">Create one now</Link>
+        </p>
+      </div>
+
+      <aside className="auth-preview">
+        <ApiStatusBanner apiStatus={apiStatus} refreshApiStatus={refreshApiStatus} />
+        <SecurityChecklist />
+      </aside>
+    </div>
+  )
+}
+
+const HomePage = ({
+  highlightStats,
+  statsBand,
+  heroPanelHighlights,
+  tagHighlights,
+  whatsappHighlights,
+  solutions,
+  collections,
+  testimonials,
+  footerNav,
+  footerQuestions,
+  formData,
+  formStatus,
+  handleInputChange,
+  handleSubmit,
+  session
+}) => (
+  <main className="pingme-app">
+    <section className="hero-section" id="about">
+      <div className="hero-grid">
+        <div className="hero-copy">
+          <p className="eyebrow">Welcome {session?.workspaceSlug ? `· ${session.workspaceSlug}` : 'back'} </p>
+          <h1>
+            Stop printing phone numbers. <span className="highlight">Start sending secure pings.</span>
+          </h1>
+          <p className="hero-description">
+            PingMe bridges strangers, security teams, and communities through masked calls, WhatsApp relays, and document
+            lockers so the right person is notified without exposing identities.
+          </p>
+
+          <div className="hero-cta">
+            <Link to="/home#contact" className="primary">
+              Book a deployment call
+            </Link>
+            <Link to="/home#products" className="primary ghost">
+              Explore drops
+            </Link>
+          </div>
+
+          <div className="hero-stats">
+            {highlightStats.map((stat) => (
+              <div key={stat.label}>
+                <span>{stat.value}</span>
+                {stat.label}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="hero-card" id="tag">
+          <span className="hero-card__badge">Secure</span>
+          <div className="hero-card__content">
+            <h3>PingMe Studio 2.0</h3>
+            <ul>
+              <li>QR + NFC twins for every surface.</li>
+              <li>Masked voice bridge for every alert.</li>
+              <li>Role-based Sampark dashboard.</li>
+            </ul>
+          </div>
+          <div className="hero-panel-grid">
+            {heroPanelHighlights.map((panel) => (
+              <article key={panel.title}>
+                <h4>{panel.title}</h4>
+                <p>{panel.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section className="stats-band">
+      {statsBand.map((stat) => (
+        <article key={stat.label}>
+          <span>{stat.value}</span>
+          <p>{stat.label}</p>
+        </article>
+      ))}
+    </section>
+
+    <section className="section tag-showcase" id="tag-section">
+      <div className="tag-media">
+        <img src={tagCard} alt="PingMe Sampark tag" />
+        <p className="tag-caption">Weather-proof dual QR + NFC decals crafted for Indian cities.</p>
+      </div>
+      <div className="tag-details">
+        <p className="eyebrow">Ping tag essentials</p>
+        <h2>Every scan routes through your Sampark workspace.</h2>
+        <div className="tag-grid">
+          {tagHighlights.map((item) => (
+            <article key={item.title}>
+              <h3>{item.title}</h3>
+              <p>{item.description}</p>
+            </article>
+          ))}
+        </div>
+        <div className="tag-cta">
+          <button className="primary" type="button">
+            View catalogue
+          </button>
+          <button className="amazon-badge" type="button">
+            Buy on Amazon
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section className="section whatsapp-block" id="studio">
+      <div className="whatsapp-media">
+        <img src={pingWebsite} alt="PingMe web console" />
+      </div>
+      <div className="whatsapp-details">
+        <p className="eyebrow">WhatsApp + SOS automations</p>
+        <h2>Mask identities, still resolve the issue in seconds.</h2>
+        <ul>
+          {whatsappHighlights.map((point) => (
+            <li key={point}>{point}</li>
+          ))}
+        </ul>
+        <Link to="/home#solutions" className="primary ghost">
+          View automation playbooks
+        </Link>
+      </div>
+    </section>
+
+    <section className="section" id="solutions">
+      <div className="section-header">
+        <p className="eyebrow">Solutions</p>
+        <h2>Choose a kit that matches your fleet, society, or retail format.</h2>
+      </div>
+      <div className="solutions-grid">
+        {solutions.map((solution) => (
+          <article key={solution.title}>
+            <h3>{solution.title}</h3>
+            <p>{solution.summary}</p>
+            <ul>
+              {solution.bullets.map((bullet) => (
+                <li key={bullet}>{bullet}</li>
+              ))}
+            </ul>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section className="section" id="products">
+      <div className="section-header">
+        <p className="eyebrow">Collections</p>
+        <h2>Limited drops built with the PingMe manufacturing crew.</h2>
+      </div>
+      <div className="collection-cards">
+        {collections.map((collection) => (
+          <article className="collection-card" key={collection.label}>
+            <div>
+              <span className="accent">{collection.accent}</span>
+              <h3>{collection.label}</h3>
+              <p>{collection.description}</p>
+            </div>
+            <ul>
+              {collection.perks.map((perk) => (
+                <li key={perk}>{perk}</li>
+              ))}
+            </ul>
+            <div className="card-footer">
+              <span>{collection.price}</span>
+              <button className="secondary" type="button">
+                {collection.cta}
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section className="section testimonials" id="studio">
+      <div className="section-header">
+        <p className="eyebrow">Studios & fleets</p>
+        <h2>Why communities switch to PingMe Sampark.</h2>
+      </div>
+      <div className="testimonial-grid">
+        {testimonials.map((testimonial) => (
+          <blockquote key={testimonial.author}>
+            <p>{testimonial.quote}</p>
+            <cite>{testimonial.author}</cite>
+          </blockquote>
+        ))}
+      </div>
+    </section>
+
+    <section className="section" id="contact">
+      <div className="section-header">
+        <p className="eyebrow">Contact</p>
+        <h2>Tell us about your deployment. We respond within 24 hours.</h2>
+      </div>
+      <div className="contact-card">
+        <form onSubmit={handleSubmit}>
+          <label>
+            Full name
+            <input type="text" name="name" placeholder="Full name" value={formData.name} onChange={handleInputChange} required />
+          </label>
+          <label>
+            Email
+            <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInputChange} required />
+          </label>
+          <label>
+            Project / requirement
+            <textarea name="project" placeholder="Tell us where PingMe fits" value={formData.project} onChange={handleInputChange} required />
+          </label>
+          <button
+            type="submit"
+            className={`primary ${formStatus.loading ? 'loading' : ''}`}
+            disabled={formStatus.loading}
+            data-loading="Sending ping…"
+          >
+            {formStatus.loading ? 'Sending…' : 'Send a ping'}
+          </button>
+          {formStatus.message ? <p className={`form-status ${formStatus.type}`}>{formStatus.message}</p> : null}
+        </form>
+
+        <div>
+          <h3>Whatsapp or call?</h3>
+          <p>Mask your identity, still reach the right team. Business hours 9am – 9pm IST.</p>
+          <a className="linkedin-pill" href="https://www.linkedin.com/company/pingme" target="_blank" rel="noreferrer">
+            LinkedIn updates
+          </a>
+          <a className="location-pill" href="mailto:hello@pingme.studio">
+            hello@pingme.studio
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <footer className="footer">
+      <div className="footer-grid">
+        <div className="footer-brand">
+          <img src={logo} alt="PingMe logo" />
+          <p>PingMe builds privacy-first Sampark products for riders, founders, and gated communities.</p>
+          <button className="secondary" type="button">
+            Download spec sheet
+          </button>
+        </div>
+        <div className="footer-column">
+          <h4>Learn more</h4>
+          <ul>
+            {footerNav.learnMore.map((link) => (
+              <li key={link.label}>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="footer-column">
+          <h4>Company</h4>
+          <ul>
+            {footerNav.company.map((link) => (
+              <li key={link.label}>
+                <a className={link.accent ? 'accent-link' : ''} href={link.href}>
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      <div className="footer-questions">
+        <div className="footer-questions__header">
+          <span>Need quick answers?</span>
+          <Link to="/home#contact" className="accent-link">
+            Talk to support →
+          </Link>
+        </div>
+        <div className="questions-grid">
+          {footerQuestions.map((question) => (
+            <a key={question.label} href={question.href} rel="noreferrer">
+              {question.label}
+            </a>
+          ))}
+        </div>
+      </div>
+    </footer>
+  </main>
+)
 
 export default App
