@@ -1,0 +1,13 @@
+/* src/assets/styles/pingme-logo.css */
+.pingme-logo {
+  height: 40px;
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.18));
+}
+
+@media (max-width: 640px) {
+  .pingme-logo {
+    height: 32px;
+  }
+}

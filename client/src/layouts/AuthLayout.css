@@ -1,0 +1,52 @@
+/* src/layouts/AuthLayout.css */
+.auth-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-cream);
+}
+
+.auth-header {
+  padding: 1rem 0;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-light);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: transform var(--transition-base);
+}
+
+.auth-logo:hover {
+  transform: scale(1.05);
+}
+
+.pingme-logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+}
+
+.auth-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .auth-header {
+    padding: 0.75rem 0;
+  }
+
+  .pingme-logo {
+    height: 32px;
+  }
+}

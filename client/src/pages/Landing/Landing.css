@@ -1,0 +1,315 @@
+/* src/pages/Landing/Landing.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+
+.landing {
+  min-height: 100vh;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 193, 7, 0.12) 0%, transparent 50%),
+    linear-gradient(135deg, #FFFCF5 0%, #FFF9EC 50%, #FFFCF5 100%);
+  background-attachment: fixed;
+  padding: 2rem 0 3rem;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.landing-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+}
+
+/* Hero Section */
+.landing-hero {
+  padding: 1rem 0;
+}
+
+.hero-content {
+  margin-bottom: 2.5rem;
+}
+
+.hero-content h1 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 3.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.hero-content .highlight {
+  color: #1A1A1A;
+  position: relative;
+  display: inline-block;
+}
+
+.hero-content .highlight::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  height: 14px;
+  background: linear-gradient(90deg, #FFD700 0%, #FFC107 100%);
+  opacity: 0.4;
+  z-index: -1;
+  border-radius: 4px;
+}
+
+.hero-subtitle {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: var(--text-light);
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Benefits Grid */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.75rem;
+}
+
+.benefit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.benefit-icon {
+  font-size: 2.25rem;
+  line-height: 1;
+}
+
+.benefit-item h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.benefit-item p {
+  font-size: 0.9375rem;
+  color: var(--text-light);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Registration Section */
+.landing-registration {
+  position: sticky;
+  top: 5rem;
+  align-self: start;
+}
+
+.registration-card {
+  /* background: rgba(255, 255, 255, 0.95); */
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 215, 0, 0.2);
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 215, 0, 0.1) inset;
+  transition: all var(--transition-base);
+}
+
+.registration-card:hover {
+  box-shadow: 
+    0 25px 50px rgba(0, 0, 0, 0.12),
+    0 0 0 2px rgba(255, 215, 0, 0.3) inset;
+}
+
+.registration-card h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.registration-subtitle {
+  font-size: 0.9375rem;
+  color: var(--text-light);
+  margin-bottom: 2rem;
+  font-weight: 400;
+}
+
+.registration-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Button Styles - CTA with Hover Effect */
+.btn-cta {
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--border);
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  letter-spacing: 0.01em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #FFD700 0%, #FFC107 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: -1;
+}
+
+.btn-cta:hover:not(:disabled)::before {
+  transform: scaleX(1);
+}
+
+.btn-cta:hover:not(:disabled) {
+  color: var(--secondary);
+  border-color: #FFD700;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 215, 0, 0.3);
+}
+
+.btn-cta:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Email Exists Notice */
+.email-exists-notice {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid var(--error);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  margin-top: -0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.email-exists-notice p {
+  color: var(--error);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin: 0;
+}
+
+.email-exists-notice .btn {
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+/* Form Footer */
+.form-footer {
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--text-light);
+  margin: 0;
+  padding-top: 0.5rem;
+  font-weight: 400;
+}
+
+.form-footer a {
+  color: var(--text);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color var(--transition-base);
+  position: relative;
+}
+
+.form-footer a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #FFD700 0%, #FFC107 100%);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.form-footer a:hover::after {
+  transform: scaleX(1);
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .landing {
+    padding: 2rem 0;
+  }
+
+  .landing-container {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  .landing-registration {
+    position: static;
+  }
+
+  .hero-content h1 {
+    font-size: 2.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .landing {
+    padding: 1.5rem 0;
+  }
+
+  .hero-content h1 {
+    font-size: 2.25rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.0625rem;
+  }
+
+  .registration-card {
+    padding: 2rem 1.5rem;
+  }
+
+  .registration-card h2 {
+    font-size: 1.75rem;
+  }
+
+  .benefits-grid {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .registration-card {
+    padding: 1.75rem 1.25rem;
+  }
+
+  .benefit-icon {
+    font-size: 2rem;
+  }
+}
