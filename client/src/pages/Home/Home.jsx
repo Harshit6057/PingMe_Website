@@ -1,62 +1,127 @@
 // src/pages/Home/Home.jsx
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import homeImage from '../../assets/home.png';
 import './Home.css';
 
 export const Home = () => {
   const { user } = useAuth();
 
   const stats = [
-    { value: '180+', label: 'Cities actively scanning' },
-    { value: '2.5M+', label: 'Masked connections routed' },
-    { value: '58s', label: 'Average response time' },
-    { value: '1.2K+', label: 'Communities onboarded' }
+    { icon: '👥', value: '50,000+', label: 'Happy Customers' },
+    { icon: '👥', value: '2', label: 'Expert Doctors' },
+    { icon: '⭐', value: '4.8', label: 'Google Rating' },
+    { icon: '🏢', value: '10', label: 'Clinic Branches' }
   ];
 
-  const features = [
+  const vehicleFeatures = [
     {
-      icon: '🔐',
-      title: 'Privacy-first alerts',
-      description: 'Bridge every ping through masked calls and WhatsApp relays so identities remain protected.'
+      icon: '🔒',
+      title: 'Private Contact',
+      description: 'Receive masked calls, SMS, and WhatsApp alerts instantly.'
     },
     {
-      icon: '📊',
-      title: 'Sampark HQ dashboard',
-      description: 'Assign tags, monitor escalations, and automate workflows from a single live control center.'
+      icon: '💬',
+      title: 'WhatsApp Update',
+      description: 'Receive masked calls, SMS, and WhatsApp alerts instantly.'
     },
     {
-      icon: '📁',
-      title: 'Document locker',
-      description: 'Store RC, insurance, and compliance proofs with OTP gates directly inside PingMe.'
+      icon: '📤',
+      title: 'Upload Files',
+      description: 'Add RC, insurance, and PUC documents secured with OTP.'
+    },
+    {
+      icon: '⭐',
+      title: 'Emergency Call',
+      description: 'Add backup emergency contacts directly inside the tag.'
     }
   ];
 
-  const quickActions = [
-    { title: 'Create New Tag', icon: '➕', action: '#create' },
-    { title: 'View Analytics', icon: '📈', action: '#analytics' },
-    { title: 'Manage Team', icon: '👥', action: '#team' },
-    { title: 'Settings', icon: '⚙️', action: '#settings' }
+  const whatWeDoFeatures = [
+    {
+      title: 'Car / Bike Ping Tag',
+      items: [
+        'Masked calls, WhatsApp & SMS relays',
+        'Emergency ping + backup contacts',
+        'Vehicle entry / exit logs and audit',
+        'Insurance & PUC reminders on autopilot'
+      ]
+    },
+    {
+      title: 'Business Sampark Kit',
+      items: [
+        'White-labeled QR / NFC with your logo',
+        'Staff roles, approvals, and bulk seats',
+        'Analytics dashboard with service logs',
+        'Dedicated success manager'
+      ]
+    },
+    {
+      title: 'Starter Pack For Shops',
+      items: [
+        'Customizable art + marketing standees',
+        'Training and scripts for your team',
+        'Counter-top boxes & POS display',
+        '60 day money-back program'
+      ]
+    },
+    {
+      title: 'Starter Pack For Shops',
+      items: [
+        'Customizable art + marketing standees',
+        'Training and scripts for your team',
+        'Counter-top boxes & POS display',
+        '60 day money-back program'
+      ]
+    }
+  ];
+
+  const faqItems = [
+    'How Car PingMe Tag can reduce parking complaints in Delhi markets?',
+    'How PingMe decals keep apartment driveways complaint-free?',
+    'Do I need separate tags for bike + helmet combos?',
+    'Can societies broadcast emergency notices with PingMe?',
+    'How quickly can I update backup contacts?',
+    'What makes PingMe safer than printing a phone number?'
   ];
 
   return (
     <main className="home-page">
-      {/* Welcome Section */}
-      <section className="home-welcome">
+      {/* Hero Section */}
+      <section className="home-hero">
         <div className="container">
-          <div className="welcome-header">
-            <div>
-              <h1>Welcome back{user?.workspaceSlug ? `, ${user.workspaceSlug}` : ''}!</h1>
-              <p className="welcome-subtitle">Here's what's happening with your PingMe workspace</p>
+          <div className="hero-content">
+            <div className="hero-text">
+              <p className="hero-tagline">SCAN - READY FUTURE - QR THAT SPARKS CONVERSATION</p>
+              <h1>
+                Bring Your Brand To Life With Bold, Custom{' '}
+                <span className="highlight-yellow">QR Decals</span>
+              </h1>
+              <p className="hero-description">
+                PingMe transforms windshields, shop fronts, helmets, and merch into interactive hubs that route fans to whatever matters—profiles, offers, playlists, or support.
+              </p>
+              <div className="hero-cta">
+                <button className="btn btn-primary-dark">Shop Signature Kits</button>
+                <button className="btn btn-outline">Preview A Ling Ping</button>
+              </div>
+              
             </div>
-            <Link to="/dashboard" className="btn btn-primary">
-              Dashboard
-            </Link>
+            
+            <div className="hero-image">
+              <img src={homeImage} alt="PingMe QR Decal" className="home-sticker" />
+            </div>
           </div>
+          
+        </div>
+      </section>
 
-          {/* Stats Grid */}
+      {/* Stats Section */}
+      <section className="home-stats">
+        <div className="container">
           <div className="stats-grid">
-            {stats.map((stat) => (
-              <div key={stat.label} className="stat-card">
+            {stats.map((stat, index) => (
+              <div key={index} className="stat-card">
+                <div className="stat-icon">{stat.icon}</div>
                 <div className="stat-value">{stat.value}</div>
                 <div className="stat-label">{stat.label}</div>
               </div>
@@ -65,50 +130,88 @@ export const Home = () => {
         </div>
       </section>
 
-      {/* Quick Actions */}
-      <section className="home-actions">
+      {/* Vehicle Tag Section */}
+      <section className="home-vehicle-tag">
         <div className="container">
-          <h2>Quick Actions</h2>
-          <div className="actions-grid">
-            {quickActions.map((action) => (
-              <a key={action.title} href={action.action} className="action-card">
-                <div className="action-icon">{action.icon}</div>
-                <div className="action-title">{action.title}</div>
-              </a>
-            ))}
+          <div className="vehicle-tag-content">
+            <div className="vehicle-tag-image">
+              <img src={homeImage} alt="PingME Vehicle Contact Tag" className="vehicle-sticker" />
+              <p className="vehicle-phone">or call 7347340000</p>
+            </div>
+            <div className="vehicle-features">
+              <h2>Privacy And Security at its best, PingME Vehicle Contact Tag</h2>
+              <div className="features-list">
+                {vehicleFeatures.map((feature, index) => (
+                  <div key={index} className="feature-item">
+                    <div className="feature-icon">{feature.icon}</div>
+                    <div>
+                      <h3>{index + 1}. {feature.title}</h3>
+                      <p>{feature.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="home-features">
+      {/* What We Do Section */}
+      <section className="home-what-we-do">
         <div className="container">
-          <div className="section-header">
-            <h2>PingMe Core Features</h2>
-            <p>Everything you need for secure, private communication</p>
-          </div>
-          <div className="features-grid">
-            {features.map((feature) => (
-              <div key={feature.title} className="feature-card">
-                <div className="feature-icon">{feature.icon}</div>
+          <p className="section-eyebrow">What We Do</p>
+          <h2 className="section-title">
+            Allow people to contact you in case of any issue with your parked vehicle.
+          </h2>
+          <div className="what-we-do-grid">
+            {whatWeDoFeatures.map((feature, index) => (
+              <div key={index} className="what-we-do-card">
                 <h3>{feature.title}</h3>
-                <p>{feature.description}</p>
+                <ul>
+                  {feature.items.map((item, itemIndex) => (
+                    <li key={itemIndex}>{item}</li>
+                  ))}
+                </ul>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Activity Section */}
-      <section className="home-activity">
+      {/* Reach Us Out Section */}
+      <section className="home-contact">
         <div className="container">
-          <h2>Recent Activity</h2>
-          <div className="activity-card">
-            <div className="activity-empty">
-              <div className="empty-icon">📭</div>
-              <h3>No recent activity</h3>
-              <p>Your workspace activity will appear here once you start using PingMe</p>
+          <h2 className="contact-title">REACH US OUT</h2>
+          <div className="contact-info">
+            <p>Address: WBI, 1st Floor, Shakarpur, New Delhi 110092</p>
+            <p>Call Us: +91 987654320</p>
+          </div>
+          <form className="contact-form">
+            <div className="form-row">
+              <input type="text" placeholder="First Name" className="form-input" />
+              <input type="text" placeholder="Last Name" className="form-input" />
             </div>
+            <textarea placeholder="Enter Your Message" className="form-textarea" rows="4"></textarea>
+            <button type="submit" className="btn btn-submit">Submit Enquiry</button>
+          </form>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="home-faq">
+        <div className="container">
+          <div className="faq-header">
+            <span className="faq-icon">❓</span>
+            <h2>FREQUENTLY ASKED QUESTIONS</h2>
+          </div>
+          <p className="faq-subtitle">Answers to common questions about homeopathy and our practice.</p>
+          <div className="faq-list">
+            {faqItems.map((question, index) => (
+              <div key={index} className="faq-item">
+                <p>{question}</p>
+                <span className="faq-toggle">+</span>
+              </div>
+            ))}
           </div>
         </div>
       </section>

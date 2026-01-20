@@ -12,6 +12,10 @@ const mongoDbName = process.env.MONGO_DB_NAME || 'pingme'
 
 let client
 let database
+let useInMemoryDb = false
+
+// In-memory database for development (fallback)
+const inMemoryUsers = []
 
 app.use(cors())
 app.use(express.json())
@@ -26,15 +30,20 @@ const buildWorkspaceSlug = (workspace = '') =>
     .replace(/(^-|-$)/g, '') || `workspace-${Date.now()}`
 
 const ensureDb = () => {
-  if (!database) {
+  if (!database && !useInMemoryDb) {
     throw new Error('Database not initialised yet. Wait for Mongo connection.')
   }
-
   return database
 }
 
 app.get('/api/health', (_, res) => {
-  res.json({ status: 'ok', service: 'PingMe API', uptime: process.uptime(), db: Boolean(database) })
+  res.json({ 
+    status: 'ok', 
+    service: 'PingMe API', 
+    uptime: process.uptime(), 
+    db: Boolean(database),
+    mode: useInMemoryDb ? 'in-memory' : 'mongodb'
+  })
 })
 
 app.get('/api/highlights', (_, res) => {
@@ -73,9 +82,42 @@ app.post('/api/register', async (req, res) => {
   }
 
   try {
+    const normalizedEmail = normalizeEmail(email)
+    
+    // Check if using in-memory database
+    if (useInMemoryDb) {
+      const existingUser = inMemoryUsers.find(u => u.email === normalizedEmail)
+      if (existingUser) {
+        return res.status(409).json({ error: 'Email already registered. Please login.' })
+      }
+
+      let workspaceSlug = buildWorkspaceSlug(workspace)
+      const slugExists = inMemoryUsers.find(u => u.workspaceSlug === workspaceSlug)
+      if (slugExists) {
+        workspaceSlug = `${workspaceSlug}-${Date.now().toString(36)}`
+      }
+
+      const newUser = {
+        _id: Date.now().toString(),
+        name,
+        email: normalizedEmail,
+        workspace,
+        workspaceSlug,
+        phone,
+        password,
+        createdAt: new Date(),
+        lastLogin: null
+      }
+
+      inMemoryUsers.push(newUser)
+      console.log(`[In-Memory DB] User registered: ${normalizedEmail}`)
+      
+      return res.status(201).json({ message: 'Workspace created. Proceed to login.', workspaceSlug })
+    }
+
+    // Use MongoDB
     const db = ensureDb()
     const usersCollection = db.collection('users')
-    const normalizedEmail = normalizeEmail(email)
 
     const existingUser = await usersCollection.findOne({ email: normalizedEmail })
     if (existingUser) {
@@ -114,9 +156,29 @@ app.post('/api/login', async (req, res) => {
   }
 
   try {
+    const normalizedEmail = normalizeEmail(email)
+    
+    // Check if using in-memory database
+    if (useInMemoryDb) {
+      const user = inMemoryUsers.find(u => u.email === normalizedEmail)
+      if (!user || user.password !== password) {
+        return res.status(401).json({ error: 'Invalid credentials.' })
+      }
+
+      const lastLogin = new Date()
+      user.lastLogin = lastLogin
+      console.log(`[In-Memory DB] User logged in: ${normalizedEmail}`)
+
+      return res.json({
+        message: 'Login successful.',
+        workspaceSlug: user.workspaceSlug,
+        lastLogin
+      })
+    }
+
+    // Use MongoDB
     const db = ensureDb()
     const usersCollection = db.collection('users')
-    const normalizedEmail = normalizeEmail(email)
 
     const user = await usersCollection.findOne({ email: normalizedEmail })
     if (!user || user.password !== password) {
@@ -139,17 +201,37 @@ app.post('/api/login', async (req, res) => {
 
 const startServer = async () => {
   try {
+    // Try to connect to MongoDB
+    console.log(`Attempting to connect to MongoDB...`)
     client = new MongoClient(mongoUri)
-    await client.connect()
+    
+    // Set connection timeout
+    const connectionPromise = client.connect()
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error('Connection timeout')), 10000)
+    )
+    
+    await Promise.race([connectionPromise, timeoutPromise])
     database = client.db(mongoDbName)
-    console.log(`Connected to MongoDB database "${mongoDbName}"`)
+    console.log(`✅ Connected to MongoDB database "${mongoDbName}"`)
 
     app.listen(PORT, () => {
-      console.log(`PingMe server running on http://localhost:${PORT}`)
+      console.log(`🚀 PingMe server running on http://localhost:${PORT}`)
     })
   } catch (error) {
-    console.error('Failed to start server:', error)
-    process.exit(1)
+    console.warn('⚠️  MongoDB connection failed:', error.message)
+    console.log('📝 Switching to in-memory database for development...')
+    console.log('💡 To use MongoDB:')
+    console.log('   1. Start local MongoDB: mongod')
+    console.log('   2. Or fix your MongoDB Atlas connection string in .env')
+    console.log('   3. Or whitelist your IP in MongoDB Atlas Network Access')
+    
+    useInMemoryDb = true
+    
+    app.listen(PORT, () => {
+      console.log(`🚀 PingMe server running on http://localhost:${PORT} (In-Memory Mode)`)
+      console.log('⚠️  Note: Data will be lost when server restarts')
+    })
   }
 }
 
