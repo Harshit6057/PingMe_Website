@@ -1,7 +1,8 @@
 // src/pages/Home/Home.jsx
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import homeImage from '../../assets/home.png';
+import homeImage from '../../assets/ping-website.png';
+import homeImage2 from '../../assets/home.png';
 import './Home.css';
 
 export const Home = () => {
@@ -90,20 +91,24 @@ export const Home = () => {
       {/* Hero Section */}
       <section className="home-hero">
         <div className="container">
-          <div className="hero-content">
-            <div className="hero-text">
-              <p className="hero-tagline">SCAN - READY FUTURE - QR THAT SPARKS CONVERSATION</p>
-              <h1>
-                Bring Your Brand To Life With Bold, Custom{' '}
-                <span className="highlight-yellow">QR Decals</span>
-              </h1>
-              <p className="hero-description">
-                PingMe transforms windshields, shop fronts, helmets, and merch into interactive hubs that route fans to whatever matters—profiles, offers, playlists, or support.
-              </p>
-              <div className="hero-cta">
-                <button className="btn btn-primary-dark">Shop Signature Kits</button>
-                <button className="btn btn-outline">Preview A Ling Ping</button>
+          <div className="hero-content">  
+            <div className="welcom-header">
+              <div className="hero-text">
+                <p className="hero-tagline">SCAN - READY FUTURE - QR THAT SPARKS CONVERSATION</p>
+                <h1>
+                  Bring Your Brand To Life With Bold, Custom{' '}
+                  <span className="highlight-yellow">QR Decals</span>
+                </h1>
+                <p className="hero-description">
+                  PingMe transforms windshields, shop fronts, helmets, and merch into interactive hubs that route fans to whatever matters—profiles, offers, playlists, or support.
+                </p>
+                <div className="hero-cta">
+                  <button className="btn btn-primary-dark">Shop Signature Kits</button>
+                  <button className="btn btn-outline">Preview A Ling Ping</button>
+                  
               </div>
+              
+            </div>
               
             </div>
             
@@ -113,6 +118,7 @@ export const Home = () => {
           </div>
           
         </div>
+       
       </section>
 
       {/* Stats Section */}
@@ -135,7 +141,7 @@ export const Home = () => {
         <div className="container">
           <div className="vehicle-tag-content">
             <div className="vehicle-tag-image">
-              <img src={homeImage} alt="PingME Vehicle Contact Tag" className="vehicle-sticker" />
+              <img src={homeImage2} alt="PingME Vehicle Contact Tag" className="vehicle-sticker" />
               <p className="vehicle-phone">or call 7347340000</p>
             </div>
             <div className="vehicle-features">

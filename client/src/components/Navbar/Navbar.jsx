@@ -1,41 +1,59 @@
 // src/components/Navbar/Navbar.jsx
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+
 import logo from '../../assets/pingme-logo.png';
 import './Navbar.css';
 import '../../assets/styles/pingme-logo.css';
 
+const navLinks = [
+  { label: 'Home', to: '/home' },
+  { label: 'Products', to: '/products' },
+  { label: 'About Us', to: '/about' },
+  { label: 'Contact Us', to: '/contact' }
+];
+
 export const Navbar = ({ showLogout = false }) => {
-  const { isAuthenticated, logout } = useAuth();
   const location = useLocation();
-  const isLandingPage = location.pathname === '/';
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const { logout } = useAuth();
+
+  const isActive = (link) => {
+    if (link.label === 'Home') {
+      return location.pathname === '/home' || location.pathname === '/';
+    }
+    return location.pathname.startsWith(link.to);
+  };
 
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <Link to="/" className="navbar-logo">
-          <img src={logo} alt="PingMe Logo" className="pingme-logo" />
+    <header className="navbar-shell">
+      <div className="navbar-shell__inner">
+        <Link to="/" className="navbar-shell__logo">
+          <img src={logo} alt="PingMe" className="pingme-logo" />
         </Link>
 
-        <div className="navbar-actions">
-          {/* Landing Page - Show Login button only */}
-          {isLandingPage && !isAuthenticated && (
-            <Link to="/login" className="btn btn-nav-cta">
-              Login
+        <nav className="navbar-shell__links">
+          {navLinks.map((link) => (
+            <Link
+              key={link.label}
+              to={link.to}
+              className={`nav-link ${isActive(link) ? 'nav-link--active' : ''}`}
+            >
+              {link.label}
             </Link>
-          )}
+          ))}
+        </nav>
 
-          {/* Home Page - Show Logout button */}
-          {showLogout && isAuthenticated && (
-            <button className="btn btn-secondary" type="button" onClick={logout}>
+        <div className="navbar-shell__actions">
+          <Link to="/dashboard" className="navbar-shell__cta">
+            Dashboard
+          </Link>
+          {showLogout && (
+            <button type="button" className="navbar-shell__logout" onClick={logout}>
               Logout
             </button>
           )}
-
-          {/* Auth Pages (Login/Register) - No action buttons, just logo */}
         </div>
       </div>
-    </nav>
+    </header>
   );
 };

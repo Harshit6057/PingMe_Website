@@ -66,6 +66,15 @@
   margin-top: 1rem;
 }
 
+.welcom-header {
+  display: flex;
+
+  /* gap: 1rem; */
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .btn-primary-dark {
   background: #8B4513;
   color: white;
@@ -107,6 +116,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
 }
 
 .home-sticker,

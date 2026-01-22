@@ -12,8 +12,11 @@ export const Footer = () => (
       </div>
       <div className="footer-links">
         <Link to="/privacy-policy">Privacy Policy</Link>
+        <div> | </div>
         <Link to="/refund-policy">Refund Policy</Link>
+        <div> | </div>
         <Link to="/pricing-shipment">Pricing & Shipment</Link>
+        <div> | </div>
         <Link to="/terms-conditions">Terms & Conditions</Link>
       </div>
     </div>

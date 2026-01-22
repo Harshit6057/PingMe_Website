@@ -11,6 +11,9 @@ import { PrivacyPolicy } from './pages/PrivacyPolicy/PrivacyPolicy';
 import { RefundPolicy } from './pages/RefundPolicy/RefundPolicy';
 import { PricingShipment } from './pages/PricingShipment/PricingShipment';
 import { TermsConditions } from './pages/TermsConditions/TermsConditions';
+import { Products } from './pages/Info/Products';
+import { About } from './pages/Info/About';
+import { Contact } from './pages/Info/Contact';
 import { AuthLayout } from './layouts/AuthLayout';
 import { MainLayout } from './layouts/MainLayout';
 
@@ -68,6 +71,30 @@ function App() {
                   refreshApiStatus={checkApiHealth} 
                   onLogin={login} 
                 />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/products" 
+            element={
+              <PublicRoute>
+                <Products />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/about" 
+            element={
+              <PublicRoute>
+                <About />
+              </PublicRoute>
+            } 
+          />
+          <Route 
+            path="/contact" 
+            element={
+              <PublicRoute>
+                <Contact />
               </PublicRoute>
             } 
           />

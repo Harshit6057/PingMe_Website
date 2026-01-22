@@ -69,8 +69,10 @@ export const Login = ({ onLogin }) => {
   return (
     <div className="auth-page login-page">
       <div className="auth-container">
+
         <div className="auth-form-wrapper">
-          <div className="auth-header">
+          <div className="login-header">
+            <p className="login-header__eyebrow">PingMe</p>
             <h1>Welcome back</h1>
             <p className="auth-subtitle">Login to access your PingMe workspace</p>
           </div>
